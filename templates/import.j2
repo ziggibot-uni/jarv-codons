@@ -1,0 +1,4 @@
+{# import.j2 - Generates import statements #}
+{% if from_module %}from {{ from_module }} import {{ name }}
+{% else %}import {{ module }}
+{% endif %}

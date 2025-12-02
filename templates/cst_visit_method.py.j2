@@ -1,0 +1,5 @@
+{# cst_visit_method.py.j2 - Visit method for CST node #}
+def visit_{{ node_type }}(self, node: cst.{{ node_type }}) -> bool:
+    """{{ docstring }}"""
+{{ body | indent(4, first=True) }}
+    return True

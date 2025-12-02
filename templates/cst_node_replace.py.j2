@@ -1,0 +1,5 @@
+{# cst_node_replace.py.j2 - Replace CST node #}
+def leave_{{ node_type }}(self, original_node: cst.{{ node_type }}, updated_node: cst.{{ node_type }}) -> cst.{{ node_type }}:
+    """{{ docstring }}"""
+{{ body | indent(4, first=True) }}
+    return updated_node

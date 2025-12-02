@@ -1,0 +1,8 @@
+{# conditional.j2 - Generates if/elif/else block #}
+{% if condition %}if {{ condition }}:
+{{ body | indent(4, first=True) }}
+{% endif %}{% if elif_blocks %}{% for elif_block in elif_blocks %}elif {{ elif_block.condition }}:
+{{ elif_block.body | indent(4, first=True) }}
+{% endfor %}{% endif %}{% if else_body %}else:
+{{ else_body | indent(4, first=True) }}
+{% endif %}

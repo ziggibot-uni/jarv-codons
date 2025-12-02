@@ -1,0 +1,5 @@
+{# method.j2 - Generates a method definition #}
+{% if decorators %}{% for decorator in decorators %}@{{ decorator }}
+{% endfor %}{% endif %}def {{ name }}({{ params }}){%- if return_type %} -> {{ return_type }}{% endif %}:
+    """{{ docstring }}"""
+{{ body | indent(4, first=True) }}
