@@ -1,0 +1,45 @@
+"""{{ doc }}"""
+from dataclasses import dataclass, field
+{%- if needs_datetime %}
+from datetime import datetime
+{%- endif %}
+{%- if needs_typing %}
+from typing import Any
+{%- endif %}
+{%- for imp in extra_imports %}
+{{ imp }}
+{%- endfor %}
+
+@dataclass
+class {{ name }}:
+    """{{ doc }}"""
+    {%- for f in fields %}
+    {{ f.name }}: {{ f.type }}{% if f.default is defined %} = {% if f.factory %}field(default_factory={{ f.factory }}){% else %}{{ f.default }}{% endif %}{% endif %}{% if f.comment %}  # {{ f.comment }}{% endif %}
+    {%- endfor %}
+    {%- if computed %}
+
+    # Computed properties (formulas from DNA)
+    {%- for method_name, formula in computed.items() %}
+    def {{ method_name }}(self{% for param in formula.params %}, {{ param }}{% endfor %}){% if formula.return_type %} -> {{ formula.return_type }}{% endif %}:
+        """{{ formula.doc or formula.expr }}"""
+        return {{ formula.expr }}
+    {%- endfor %}
+    {%- endif %}
+    {%- if mutators %}
+
+    # Mutator methods (state changes from DNA)
+    {%- for method_name, mutation in mutators.items() %}
+    def {{ method_name }}(self{% for param_name, param_default in mutation.params.items() %}, {{ param_name }}: {{ mutation.param_types.get(param_name, 'float') }}{% if param_default is not none %} = {{ param_default }}{% endif %}{% endfor %}):
+        """{{ mutation.doc or mutation.expr }}"""
+        {{ mutation.expr }}
+    {%- endfor %}
+    {%- endif %}
+    {%- if converters %}
+
+    # Converter methods
+    {%- for method_name, converter in converters.items() %}
+    def {{ method_name }}(self) -> {{ converter.return_type }}:
+        """{{ converter.doc or 'Convert to ' ~ converter.return_type }}"""
+        return {{ converter.expr }}
+    {%- endfor %}
+    {%- endif %}

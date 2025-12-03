@@ -1,0 +1,4 @@
+{#- Expands a one-liner formula into a proper method -#}
+def {{ name }}(self{% for param in params %}, {{ param.name }}: {{ param.type }}{% if param.default is defined %} = {{ param.default }}{% endif %}{% endfor %}){% if return_type %} -> {{ return_type }}{% endif %}:
+    """{{ doc or formula }}"""
+    return {{ formula }}

@@ -1,0 +1,10 @@
+@property
+def {{ name }}(self) -> {{ return_type }}:
+    """{{ doc }}"""
+    {%- if formula %}
+    return {{ formula }}
+    {%- else %}
+    {%- for line in body_lines %}
+    {{ line }}
+    {%- endfor %}
+    {%- endif %}

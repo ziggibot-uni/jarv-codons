@@ -1,0 +1,57 @@
+"""{{ doc }}"""
+from typing import Any
+{%- for imp in auto_imports %}
+{{ imp }}
+{%- endfor %}
+{%- if use_logger %}
+from utils.logging import get_logger
+
+logger = get_logger("{{ module_name }}")
+{%- endif %}
+
+class {{ name }}:
+    """{{ doc }}"""
+    {%- if class_fields %}
+    
+    {%- for field in class_fields %}
+    {{ field.name }}: {{ field.type }}
+    {%- endfor %}
+    {%- endif %}
+
+    def __init__(self, {% for param in init_params %}{{ param.name }}: {{ param.type }}{% if not loop.last %}, {% endif %}{% endfor %}):
+        """Initialize {{ name }} with DNA configuration."""
+        {%- if 'dna_reader' in init_params|map(attribute='name')|list %}
+        self.dna_reader = dna_reader
+        {%- endif %}
+        {%- for config in dna_configs %}
+        {%- if config.path %}
+        cfg = dna_reader.get({{ config.path|map('tojson')|join(', ') }}, default={})
+        {%- endif %}
+        {%- for field_name, field_config in config.fields.items() %}
+        {%- if field_config.from_config %}
+        self.{{ field_name }} = cfg.get("{{ field_config.from_config }}", {{ field_config.default|default('None')|tojson }})
+        {%- elif field_config.from_dna %}
+        self.{{ field_name }} = dna_reader.get({{ field_config.from_dna.split('.')|map('tojson')|join(', ') }}, default={{ field_config.default|default('{}')|tojson }})
+        {%- elif field_config.literal %}
+        self.{{ field_name }} = {{ field_config.literal }}
+        {%- endif %}
+        {%- endfor %}
+        {%- endfor %}
+        {%- for init_stmt in extra_init %}
+        {{ init_stmt }}
+        {%- endfor %}
+        {%- if use_logger %}
+        logger.info("{{ name }} initialized")
+        {%- endif %}
+    {%- for method in methods %}
+
+    def {{ method.name }}(self{% for param in method.params %}, {{ param }}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %}:
+        """{{ method.doc }}"""
+        {%- if method.body_lines %}
+        {%- for line in method.body_lines %}
+        {{ line }}
+        {%- endfor %}
+        {%- else %}
+        {{ method.body }}
+        {%- endif %}
+    {%- endfor %}
